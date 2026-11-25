@@ -1,0 +1,19 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/mcp.schema.json",
+  "mcpServers": {
+    "s2f-fabric": {
+      "type": "stdio",
+      "command": "node",
+      "args": [
+        "${PLUGIN_ROOT}\\node_modules\\@microsoft\\fabric-mcp\\index.js",
+        "server", "start", "--mode", "all", "--read-only",
+        "--namespace", "docs", "--namespace", "core", "--namespace", "onelake",
+        "--disable-proxy-tools", "--disable-caching"
+      ],
+      "env": {
+        "AZURE_TOKEN_CREDENTIALS": "AzureCliCredential"
+      },
+      "cwd": "${PLUGIN_DATA}"
+    }
+  }
+}

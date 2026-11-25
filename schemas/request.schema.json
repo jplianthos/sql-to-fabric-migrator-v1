@@ -1,0 +1,5 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://s2f.invalid/schemas/request.schema.json",
+  "$ref": "plan.schema.json#/$defs/request"
+}

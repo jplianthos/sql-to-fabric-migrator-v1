@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://s2f.invalid/schemas/ledger.schema.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["contractVersion", "workspaceId", "itemId", "state"],
+  "properties": {
+    "contractVersion": {"const": "1.0"},
+    "workspaceId": {"type": "string", "minLength": 1},
+    "itemId": {"type": "string", "minLength": 1},
+    "state": {"const": "deployed"}
+  }
+}

@@ -1,0 +1,14 @@
+.env
+.env.*
+!.env.example
+.venv/
+node_modules/
+__pycache__/
+*.pyc
+bin/
+obj/
+build/
+dist/
+*.egg-info/
+.pytest_cache/
+.artifacts/

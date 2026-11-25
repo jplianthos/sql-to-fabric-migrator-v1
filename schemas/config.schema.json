@@ -1,0 +1,87 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://s2f.invalid/schemas/config.schema.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["contractVersion", "options"],
+  "properties": {
+    "contractVersion": {"const": "1.0"},
+    "options": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["A1","A2","A3","A4","A5","A6","B1","B2","B3","B4","B5","B6","B7","B8","C1","C2","C3","C4","C5","C6","D1","D2","D3","D4","D5","D6","D7","D8","E1","E2","E3","E4","E5","E6","E7","E8","E9","E10","E11","E12","E13","E14","F1","F2","F3","F4","G1","G2","G3","G4","G5"],
+      "properties": {
+        "A1": {"title":"Source server","description":"No database or transport is inferred.","x-recommendation":"None; required","anyOf":[{"type":"null"},{"type":"string","minLength":1}]},
+        "A2": {"title":"Source authentication","description":"SQL logins and service identities are prohibited.","x-recommendation":"Windows integrated; explicitly confirm","enum":[null,"windows-integrated"]},
+        "A3": {"title":"Source encryption","description":"Trust skips certificate-chain validation; strict ignores trust.","x-recommendation":"mandatory; trust false","anyOf":[{"type":"null"},{"type":"object","additionalProperties":false,"required":["encrypt","trustServerCertificate"],"properties":{"encrypt":{"enum":["mandatory","strict","optional"]},"trustServerCertificate":{"type":"boolean"}}}]},
+        "A4": {"title":"Source engine profile","description":"All source statements still require SQL2016 conformance.","x-recommendation":"sql2016","enum":[null,"sql2016","auto-detect"]},
+        "A5": {"title":"Fabric sign-in","description":"Every method must sign in as the user, never an application.","x-recommendation":"azure-cli","enum":[null,"azure-cli","interactive-browser","device-code"]},
+        "A6": {"title":"Tenant","description":"An explicit tenant prevents accidental cross-tenant access.","x-recommendation":"None; required","anyOf":[{"type":"null"},{"type":"string","minLength":1}]},
+        "B1": {"title":"Capacity","description":"Select an actual capacity from approved live reads.","x-recommendation":"None; required","anyOf":[{"type":"null"},{"$ref":"#/$defs/namedId"}]},
+        "B2": {"title":"Workspaces","description":"Only explicit existing IDs can form a write fence; creation grants no existing ownership.","x-recommendation":"One new workspace; name asked","anyOf":[{"type":"null"},{"type":"object","additionalProperties":false,"required":["mode","layout","targets"],"properties":{"mode":{"enum":["existing","create"]},"layout":{"enum":["single","per-layer"]},"targets":{"type":"array","minItems":1,"items":{"type":"object","additionalProperties":false,"required":["id","name","layer"],"properties":{"id":{"type":["string","null"],"minLength":1},"name":{"type":"string","minLength":1},"layer":{"enum":["all","bronze","silver","gold"]}}}}}}]},
+        "B3": {"title":"Target layout","description":"Layout controls cross-database name rewrites.","x-recommendation":"B","anyOf":[{"type":"null"},{"type":"object","additionalProperties":false,"required":["layout","mapping"],"properties":{"layout":{"enum":["A","B","C"]},"mapping":{"type":"object","additionalProperties":{"type":"string","minLength":1}}}}]},
+        "B4": {"title":"Warehouse collation","description":"Immutable after Warehouse creation; mixed collations can break cross-warehouse queries.","x-recommendation":"Match source after lookup","x-lock-on-apply":true,"enum":[null,"Latin1_General_100_CI_AS_KS_WS_SC_UTF8","Latin1_General_100_BIN2_UTF8"]},
+        "B5": {"title":"Lakehouse schemas","description":"Changes table-load endpoints.","x-recommendation":"enabled","enum":[null,"enabled","disabled"]},
+        "B6": {"title":"Naming","description":"Prefixes and custom maps change target names.","x-recommendation":"keep","anyOf":[{"type":"null"},{"type":"object","additionalProperties":false,"required":["mode","prefix","mapping"],"properties":{"mode":{"enum":["keep","prefix","custom"]},"prefix":{"type":["string","null"]},"mapping":{"type":"object","additionalProperties":{"type":"string","minLength":1}}}}]},
+        "B7": {"title":"Deployment mode","description":"Dry run generates definitions only; live still needs separate approvals.","x-recommendation":"live-with-approval","enum":[null,"live-with-approval","dry-run"]},
+        "B8": {"title":"Fabric MCP","description":"MCP is lookup-only, never a write route.","x-recommendation":"on-read-only","enum":[null,"on-read-only","off"]},
+        "C1": {"title":"Database scope","description":"No databases are preselected.","x-recommendation":"None","anyOf":[{"type":"null"},{"$ref":"#/$defs/stringList"}]},
+        "C2": {"title":"Object scope","description":"The user chooses inclusions and exclusions.","x-recommendation":"None","anyOf":[{"type":"null"},{"type":"object","additionalProperties":false,"required":["mode","include","exclude"],"properties":{"mode":{"enum":["all","schemas","list"]},"include":{"$ref":"#/$defs/stringList"},"exclude":{"$ref":"#/$defs/stringList"}}}]},
+        "C3": {"title":"Per-table data","description":"Predicates require the future SQL130 guard; no sample size is inferred.","x-recommendation":"None","anyOf":[{"type":"null"},{"type":"object","minProperties":1,"additionalProperties":{"type":"object","additionalProperties":false,"required":["mode","predicate","rows"],"properties":{"mode":{"enum":["full","filtered","schema-only","sample"]},"predicate":{"type":["string","null"]},"rows":{"type":["integer","null"],"minimum":1}}}}]},
+        "C4": {"title":"Waves and order","description":"Dependency order is a proposal, never a saved default.","x-recommendation":"User-confirmed dependency proposal","anyOf":[{"type":"null"},{"type":"array","items":{"type":"object","additionalProperties":false,"required":["name","objects"],"properties":{"name":{"type":"string","minLength":1},"objects":{"$ref":"#/$defs/stringList"}}}}]},
+        "C5": {"title":"Order within wave","description":"User order may need dependency warnings.","x-recommendation":"dependency","enum":[null,"dependency","user-defined"]},
+        "C6": {"title":"Replay plan","description":"Only explicit calls and parameter values may be replayed; [] means none.","x-recommendation":"None preselected","anyOf":[{"type":"null"},{"type":"array","items":{"type":"object","additionalProperties":false,"required":["procedure","parameters"],"properties":{"procedure":{"type":"string","minLength":1},"parameters":{"type":"object","additionalProperties":{"type":["string","number","boolean","null"]}}}}}]},
+        "D1": {"title":"Bronze landing","description":"Gateway and mirroring require DBA source-change checklists.","x-recommendation":"file-drop","enum":[null,"file-drop","gateway-copy","mirroring"]},
+        "D2": {"title":"Extract format","description":"CSV needs an explicit target schema; neither format implies extraction consent.","x-recommendation":"parquet","enum":[null,"parquet","csv-utf8"]},
+        "D3": {"title":"Files to Delta","description":"Load API is preview and endpoint depends on Lakehouse schemas.","x-recommendation":"notebook","enum":[null,"notebook","load-table-api"]},
+        "D4": {"title":"Load mode","description":"Incremental mode requires user-picked watermark columns.","x-recommendation":"full","anyOf":[{"type":"null"},{"type":"object","additionalProperties":false,"required":["mode","watermarks"],"properties":{"mode":{"enum":["full","incremental"]},"watermarks":{"type":"object","additionalProperties":{"type":"string","minLength":1}}}}]},
+        "D5": {"title":"Bronze to silver","description":"Spark Warehouse connector requires interactive user authentication.","x-recommendation":"tsql-notebook-pipeline","enum":[null,"tsql-notebook-pipeline","spark-warehouse-connector","pipeline-script","pipeline-procedure","pipeline-copy"]},
+        "D6": {"title":"Silver to gold","description":"Converted procedures remain code execution requiring approval.","x-recommendation":"converted-procedures","enum":[null,"converted-procedures","tsql-notebook","spark-notebook"]},
+        "D7": {"title":"Pipeline layout","description":"No pipeline layout or execution order is inferred.","x-recommendation":"parent-per-wave","enum":[null,"parent-per-wave","per-object","none"]},
+        "D8": {"title":"Current date handling","description":"A run-date parameter supports repeatable replay.","x-recommendation":"run-date-parameter","enum":[null,"run-date-parameter","unchanged"]},
+        "E1": {"title":"Unicode sizing","description":"Measured sizing requires profiling; headroom must be explicit.","x-recommendation":"measured with 1.25 headroom, worst-case if unprofiled","anyOf":[{"type":"null"},{"type":"object","additionalProperties":false,"required":["mode","headroom"],"properties":{"mode":{"enum":["measured","worst-case-4-bytes","keep-length"]},"headroom":{"type":["number","null"],"minimum":1}}}]},
+        "E2": {"title":"Datetime precision","description":"Precision loss requires a finding.","x-recommendation":"6","enum":[null,6,3]},
+        "E3": {"title":"Type-map file","description":"Unsupported types remain blocking; mapping proposals need verification.","x-recommendation":"User-confirmed verified type-map file","anyOf":[{"type":"null"},{"type":"string","minLength":1}]},
+        "E4": {"title":"Keys and duplicates","description":"NOT ENFORCED keys need explicit duplicate checks; foreign keys are a separate choice.","x-recommendation":"stop-relied-on duplicates","anyOf":[{"type":"null"},{"type":"object","additionalProperties":false,"required":["duplicates","foreignKeys"],"properties":{"duplicates":{"enum":["stop-relied-on","report-only","stop-any"]},"foreignKeys":{"enum":["not-enforced","drop"]}}}]},
+        "E5": {"title":"Identity columns","description":"Initial preservation differs from regeneration.","x-recommendation":"preserve","enum":[null,"preserve","regenerate","row-number"]},
+        "E6": {"title":"Cursors","description":"Rewrites must be reviewed as diffs.","x-recommendation":"set-based","enum":[null,"set-based","batched-while","flag-only"]},
+        "E7": {"title":"XML string building","description":"STRING_AGG equivalence needs assessment.","x-recommendation":"string-agg","enum":[null,"string-agg","flag-only"]},
+        "E8": {"title":"Merge output capture","description":"Dropping capture requires a finding.","x-recommendation":"rebuild-counts","enum":[null,"rebuild-counts","drop-with-finding","flag-only"]},
+        "E9": {"title":"Triggers","description":"Dropped trigger semantics require a finding.","x-recommendation":"explicit-step","enum":[null,"explicit-step","drop-with-finding"]},
+        "E10": {"title":"Synonyms","description":"Target names depend on the approved layout.","x-recommendation":"target-name","enum":[null,"target-name","view"]},
+        "E11": {"title":"Physical design","description":"Dropping design is not permission to drop semantics.","x-recommendation":"drop-and-report","enum":[null,"drop-and-report","keep-comments"]},
+        "E12": {"title":"Logging run identity","description":"Run key changes affect lineage and replay.","x-recommendation":"pipeline-run-id","enum":[null,"pipeline-run-id","bigint-identity","guid-string"]},
+        "E13": {"title":"Per-rule policies","description":"Only verified rules may later use the explicit policy map.","x-recommendation":"Verified rule catalog recommendations","anyOf":[{"type":"null"},{"type":"object","minProperties":1,"additionalProperties":{"enum":["rewrite","todo","block"]}}]},
+        "E14": {"title":"Case sensitivity scan","description":"The Lakehouse endpoint is case-sensitive.","x-recommendation":"always","enum":[null,"always","when-target-case-sensitive"]},
+        "F1": {"title":"Validation checks","description":"Counts alone cannot establish value equivalence.","x-recommendation":"counts-profiles-hashes","enum":[null,"counts-profiles-hashes","counts-profiles","counts"]},
+        "F2": {"title":"Normalization","description":"Normalization changes comparison semantics and must be explicit.","x-recommendation":"microseconds; distinct NULL/blank; exact case","anyOf":[{"type":"null"},{"type":"object","additionalProperties":false,"required":["trimTrailingSpaces","datetimePrecision","decimalScale","nullBlankDifferent","exactCase"],"properties":{"trimTrailingSpaces":{"type":"boolean"},"datetimePrecision":{"enum":["microseconds","milliseconds"]},"decimalScale":{"type":"integer","minimum":0,"maximum":38},"nullBlankDifferent":{"const":true},"exactCase":{"const":true}}}]},
+        "F3": {"title":"Tolerance","description":"Numeric tolerance must have an explicit nonnegative value.","x-recommendation":"exact","anyOf":[{"type":"null"},{"type":"object","additionalProperties":false,"required":["mode","value"],"properties":{"mode":{"enum":["exact","numeric"]},"value":{"type":["number","null"],"minimum":0}}}]},
+        "F4": {"title":"Comparison points","description":"Gold comparison requires an approved replay or explicit data-only comparison.","x-recommendation":"bronze, silver and gold","anyOf":[{"type":"null"},{"type":"array","minItems":1,"uniqueItems":true,"items":{"enum":["bronze","silver","gold"]}}]},
+        "G1": {"title":"Blind paths","description":"Adds to the development guard; never weakens it.","x-recommendation":"User supplies; empty only by explicit choice","anyOf":[{"type":"null"},{"type":"array","maxItems":64,"uniqueItems":true,"items":{"type":"string","minLength":1,"maxLength":512}}]},
+        "G2": {"title":"Run folder","description":"Must remain inside the project, outside policy/state/plan folders.","x-recommendation":"s2f-runs","anyOf":[{"type":"null"},{"type":"string","minLength":1}]},
+        "G3": {"title":"Plan expiry minutes","description":"Expiry is bounded to 60 minutes in this release.","x-recommendation":"60","anyOf":[{"type":"null"},{"type":"integer","minimum":1,"maximum":60}]},
+        "G4": {"title":"Deletes","description":"No policy allows deletion of unowned items.","x-recommendation":"owned-only","enum":[null,"owned-only","never"]},
+        "G5": {"title":"Report format","description":"Choose output format without changing validation scope.","x-recommendation":"markdown","enum":[null,"markdown","html","both"]}
+      }
+    },
+    "overrides": {
+      "type":"object",
+      "additionalProperties":{
+        "type":"object","minProperties":1,"additionalProperties":false,
+        "properties":{
+          "E1":{"$ref":"#/properties/options/properties/E1"},"E2":{"$ref":"#/properties/options/properties/E2"},
+          "E3":{"$ref":"#/properties/options/properties/E3"},"E4":{"$ref":"#/properties/options/properties/E4"},
+          "E5":{"$ref":"#/properties/options/properties/E5"},"E6":{"$ref":"#/properties/options/properties/E6"},
+          "E7":{"$ref":"#/properties/options/properties/E7"},"E8":{"$ref":"#/properties/options/properties/E8"},
+          "E9":{"$ref":"#/properties/options/properties/E9"},"E10":{"$ref":"#/properties/options/properties/E10"},
+          "E11":{"$ref":"#/properties/options/properties/E11"},"E12":{"$ref":"#/properties/options/properties/E12"},
+          "E13":{"$ref":"#/properties/options/properties/E13"},"E14":{"$ref":"#/properties/options/properties/E14"}
+        }
+      }
+    }
+  },
+  "$defs":{
+    "namedId":{"type":"object","additionalProperties":false,"required":["id","name"],"properties":{"id":{"type":"string","minLength":1},"name":{"type":"string","minLength":1}}},
+    "stringList":{"type":"array","uniqueItems":true,"items":{"type":"string","minLength":1}}
+  }
+}

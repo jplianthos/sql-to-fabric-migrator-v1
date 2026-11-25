@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://s2f.invalid/schemas/audit.schema.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["contractVersion", "eventId", "observedAt", "sessionId", "runId", "command", "status", "planId", "planHash"],
+  "properties": {
+    "contractVersion": {"const": "1.0"},
+    "eventId": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "observedAt": {"type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{3}Z$"},
+    "sessionId": {"type": "string", "minLength": 1},
+    "runId": {"type": "string", "pattern": "^[a-z0-9][a-z0-9-]{0,63}$"},
+    "command": {"type": "string", "minLength": 1},
+    "status": {"enum": ["completed", "failed"]},
+    "planId": {"type": ["string", "null"]},
+    "planHash": {"type": ["string", "null"], "pattern": "^[a-f0-9]{64}$"}
+  }
+}

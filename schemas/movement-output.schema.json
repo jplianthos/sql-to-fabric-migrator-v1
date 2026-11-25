@@ -1,0 +1,79 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://s2f.invalid/schemas/movement-output.schema.json",
+  "$defs": {
+    "table": {
+      "type":"object","additionalProperties":false,"required":["database","schema","table"],
+      "properties":{"database":{"type":"string","minLength":1,"maxLength":128},"schema":{"type":"string","minLength":1,"maxLength":128},"table":{"type":"string","minLength":1,"maxLength":128}}
+    },
+    "column": {
+      "type":"object","additionalProperties":false,
+      "required":["ordinal","name","typeName","maxLength","precision","scale","nullable","computedColumn","primaryKeyOrdinal","userDefined","assemblyType"],
+      "properties":{
+        "ordinal":{"type":"integer","minimum":1,"maximum":2147483647},"name":{"type":"string","pattern":"^[A-Za-z_][A-Za-z0-9_]{0,127}$"},
+        "typeName":{"enum":["tinyint","smallint","int","bigint","bit","decimal","numeric","float","real","char","varchar","nchar","nvarchar","binary","varbinary","date","datetime2"]},
+        "maxLength":{"type":"integer","minimum":1,"maximum":8000},"precision":{"type":"integer","minimum":0,"maximum":53},
+        "scale":{"type":"integer","minimum":0,"maximum":38},"nullable":{"type":"boolean"},"computedColumn":{"const":false},
+        "primaryKeyOrdinal":{"type":"integer","minimum":0,"maximum":16},
+        "userDefined":{"const":false},"assemblyType":{"const":false}
+      }
+    },
+    "signature": {
+      "type":"object","additionalProperties":false,"required":["rows","profiles","rowHash"],
+      "properties":{
+        "rows":{"type":"integer","minimum":0,"maximum":100000},"rowHash":{"$ref":"plan.schema.json#/$defs/hash"},
+        "profiles":{"type":"array","minItems":1,"maxItems":128,"items":{
+          "type":"object","additionalProperties":false,"required":["name","nulls","distinctValues","maxUtf8Bytes"],
+          "properties":{"name":{"type":"string"},"nulls":{"type":"integer","minimum":0},"distinctValues":{"type":"integer","minimum":0},"maxUtf8Bytes":{"type":["integer","null"],"minimum":0}}
+        }}
+      }
+    },
+    "artifact": {
+      "type":"object","additionalProperties":false,"required":["sha256","bytes","rows","signature","etag"],
+      "properties":{
+        "sha256":{"$ref":"plan.schema.json#/$defs/hash"},"bytes":{"type":"integer","minimum":1,"maximum":64000000},
+        "rows":{"type":"integer","minimum":0,"maximum":100000},"signature":{"$ref":"#/$defs/signature"},
+        "etag":{"type":["string","null"],"minLength":1,"maxLength":512}
+      }
+    },
+    "report": {
+      "type":"object","additionalProperties":false,
+      "required":["observedAt","comparisonPoint","checks","sourceConsistency","sourceDifferences","targetDifferences","expected","source","target","passed","valueHashesMatched","silverGoldValidated"],
+      "properties":{
+        "observedAt":{"$ref":"plan.schema.json#/$defs/timestamp"},"comparisonPoint":{"const":"bronze"},
+        "checks":{"enum":["counts","counts-profiles","counts-profiles-hashes"]},"sourceConsistency":{"const":"nontransactional"},
+        "sourceDifferences":{"type":"array","uniqueItems":true,"items":{"enum":["rows","profiles","rowHash"]}},
+        "targetDifferences":{"type":"array","uniqueItems":true,"items":{"enum":["rows","profiles","rowHash","primary-key"]}},
+        "expected":{"$ref":"#/$defs/signature"},"source":{"$ref":"#/$defs/signature"},"target":{"$ref":"#/$defs/signature"},
+        "passed":{"type":"boolean"},"valueHashesMatched":{"type":"boolean"},"silverGoldValidated":{"const":false}
+      }
+    }
+  },
+  "oneOf":[
+    {
+      "type":"object","additionalProperties":false,
+      "required":["contractVersion","kind","checkId","runId","table","columns","keys","estimatedRows","consistency","dataRead"],
+      "properties":{
+        "contractVersion":{"const":"1.0"},"kind":{"const":"movement-table"},"checkId":{"$ref":"plan.schema.json#/$defs/identifier"},
+        "runId":{"$ref":"plan.schema.json#/$defs/identifier"},"table":{"$ref":"#/$defs/table"},
+        "columns":{"type":"array","minItems":1,"maxItems":128,"items":{"$ref":"#/$defs/column"}},
+        "keys":{"type":"array","minItems":1,"maxItems":16,"uniqueItems":true,"items":{"type":"string"}},
+        "estimatedRows":{"type":"null"},"consistency":{"const":"nontransactional"},"dataRead":{"const":false}
+      }
+    },
+    {
+      "type":"object","additionalProperties":false,
+      "required":["contractVersion","kind","stage","status","planId","planHash","runId","grantId","receiptId","operationId","nextPollAt","previousReceiptId","artifact","report"],
+      "properties":{
+        "contractVersion":{"const":"1.0"},"kind":{"const":"data-movement"},"stage":{"enum":["extract","upload","load"]},
+        "status":{"enum":["extracted","uploaded","pending","loaded","failed","reconciled","mismatch"]},
+        "planId":{"$ref":"plan.schema.json#/$defs/identifier"},"planHash":{"$ref":"plan.schema.json#/$defs/hash"},
+        "runId":{"$ref":"plan.schema.json#/$defs/identifier"},"grantId":{"$ref":"plan.schema.json#/$defs/identifier"},
+        "receiptId":{"$ref":"plan.schema.json#/$defs/identifier"},"operationId":{"type":["string","null"],"format":"uuid"},
+        "nextPollAt":{"anyOf":[{"type":"null"},{"$ref":"plan.schema.json#/$defs/timestamp"}]},
+        "previousReceiptId":{"type":["string","null"]},"artifact":{"$ref":"#/$defs/artifact"},
+        "report":{"anyOf":[{"type":"null"},{"$ref":"#/$defs/report"}]}
+      }
+    }
+  ]
+}

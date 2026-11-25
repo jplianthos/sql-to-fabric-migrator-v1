@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://s2f.invalid/schemas/provisioning-output.schema.json",
+  "type":"object","additionalProperties":false,
+  "required":["contractVersion","kind","status","planId","planHash","runId","grantId","receiptId","resource","operationId","nextPollAt","previousReceiptId"],
+  "properties":{
+    "contractVersion":{"const":"1.0"},"kind":{"const":"fabric-provisioning"},
+    "status":{"enum":["pending","created","failed"]},
+    "planId":{"$ref":"plan.schema.json#/$defs/identifier"},
+    "runId":{"$ref":"plan.schema.json#/$defs/identifier"},
+    "grantId":{"$ref":"plan.schema.json#/$defs/identifier"},
+    "receiptId":{"$ref":"plan.schema.json#/$defs/identifier"},
+    "previousReceiptId":{"anyOf":[{"type":"null"},{"$ref":"plan.schema.json#/$defs/identifier"}]},
+    "planHash":{"$ref":"plan.schema.json#/$defs/hash"},
+    "operationId":{"type":["string","null"],"format":"uuid"},
+    "nextPollAt":{"anyOf":[{"type":"null"},{"$ref":"plan.schema.json#/$defs/timestamp"}]},
+    "resource":{"anyOf":[{"type":"null"},{"type":"object","additionalProperties":false,
+      "required":["id","type","displayName"],
+      "properties":{
+        "id":{"type":"string","format":"uuid"},"type":{"enum":["Workspace","Lakehouse","Warehouse"]},
+        "displayName":{"type":"string","minLength":1},"capacityId":{"type":"string","format":"uuid"},
+        "workspaceId":{"type":"string","format":"uuid"}
+      }}]}
+  }
+}

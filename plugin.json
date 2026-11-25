@@ -1,0 +1,6 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "sql-to-fabric-migrator",
+  "version": "0.1.0",
+  "description": "Preview approval-first SQL Server 2016 to Fabric bronze migration: guarded source reads, new target provisioning, Parquet extraction, OneLake upload, loading and reconciliation."
+}

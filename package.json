@@ -1,0 +1,9 @@
+{
+  "name": "s2f-fabric-mcp-runtime",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Node is used only for the read-only Fabric MCP runtime.",
+  "dependencies": {
+    "@microsoft/fabric-mcp": "1.8.0"
+  }
+}

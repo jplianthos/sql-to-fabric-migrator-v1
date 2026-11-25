@@ -1,0 +1,58 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://s2f.invalid/schemas/provisioning-plan.schema.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["contractVersion","kind","planId","runId","project","createdAt","expiresAt","configHash","operation","actionClass","summary","identity","workspaces","objects","estimatedRows","reversible","calls","resourceType","subscription","reads"],
+  "$defs": {
+    "request": {
+      "type":"object","additionalProperties":false,
+      "required":["kind","runId","resourceType","displayName","workspaceId","subscription","identity"],
+      "properties":{
+        "kind":{"const":"fabric-provisioning"},
+        "runId":{"$ref":"plan.schema.json#/$defs/identifier"},
+        "resourceType":{"enum":["Workspace","Lakehouse","Warehouse"]},
+        "displayName":{"type":"string","minLength":1,"maxLength":256},
+        "workspaceId":{"type":["string","null"],"format":"uuid"},
+        "subscription":{"type":"string","format":"uuid"},
+        "identity":{"$ref":"plan.schema.json#/$defs/identity"}
+      }
+    }
+  },
+  "properties": {
+    "contractVersion": {"const":"1.0"}, "kind": {"const":"fabric-provisioning"},
+    "planId": {"$ref":"plan.schema.json#/$defs/identifier"}, "runId": {"$ref":"plan.schema.json#/$defs/identifier"},
+    "project": {"type":"string","minLength":1},
+    "createdAt": {"$ref":"plan.schema.json#/$defs/timestamp"}, "expiresAt": {"$ref":"plan.schema.json#/$defs/timestamp"},
+    "configHash": {"$ref":"plan.schema.json#/$defs/hash"},
+    "operation": {"const":"provision"}, "actionClass": {"const":"Write"},
+    "summary": {"type":"string","minLength":1,"maxLength":500},
+    "identity": {"$ref":"plan.schema.json#/$defs/identity"},
+    "workspaces": {"$ref":"plan.schema.json#/$defs/workspaces"},
+    "objects": {"type":"array","minItems":1,"maxItems":1,"items":{"type":"string"}},
+    "estimatedRows": {"const":0}, "reversible": {"const":false},
+    "resourceType": {"enum":["Workspace","Lakehouse","Warehouse"]},
+    "subscription": {"type":"string","format":"uuid"},
+    "reads": {"type":"array","minItems":4,"maxItems":4,"items":{"type":"string","pattern":"^/v1/"}},
+    "calls": {
+      "type":"array","minItems":1,"maxItems":1,
+      "items":{
+        "type":"object","additionalProperties":false,
+        "required":["workspaceId","itemId","operation","description","method","path","body"],
+        "properties":{
+          "workspaceId":{"type":"string","minLength":1},"itemId":{"const":""},
+          "operation":{"const":"create"},"description":{"type":"string","minLength":1},
+          "method":{"const":"POST"},"path":{"type":"string","pattern":"^/v1/workspaces"},
+          "body":{"type":"object","additionalProperties":false,"required":["displayName"],
+            "properties":{"displayName":{"type":"string","minLength":1,"maxLength":256},
+              "capacityId":{"type":"string","format":"uuid"},
+              "creationPayload":{"oneOf":[
+                {"type":"object","additionalProperties":false,"required":["enableSchemas"],"properties":{"enableSchemas":{"type":"boolean"}}},
+                {"type":"object","additionalProperties":false,"required":["collationType"],"properties":{"collationType":{"enum":["Latin1_General_100_BIN2_UTF8","Latin1_General_100_CI_AS_KS_WS_SC_UTF8"]}}}
+              ]}}
+          }
+        }
+      }
+    }
+  }
+}

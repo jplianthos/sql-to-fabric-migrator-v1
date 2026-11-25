@@ -1,0 +1,89 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://s2f.invalid/schemas/configuration-output.schema.json",
+  "type": "object",
+  "required": ["contractVersion", "kind"],
+  "properties": {"contractVersion": {"const": "1.0"}, "kind": {"enum": ["configuration", "read-allowance"]}},
+  "unevaluatedProperties": false,
+  "oneOf": [
+    {
+      "required": ["command", "configuration", "saved"],
+      "properties": {
+        "kind": {"const": "configuration"}, "command": {"const": "init"},
+        "configuration": {"$ref": "config.schema.json"}, "saved": {"const": false}
+      }
+    },
+    {
+      "required": ["command", "options"],
+      "properties": {
+        "kind": {"const": "configuration"}, "command": {"const": "catalog"},
+        "options": {"type": "array", "items": {"type": "object", "required": ["id", "title", "recommendation", "consequence"]}}
+      }
+    },
+    {
+      "required": ["command", "configuration", "unanswered", "complete", "approved"],
+      "properties": {
+        "kind": {"const": "configuration"}, "command": {"enum": ["validate", "show"]},
+        "configuration": {"$ref": "config.schema.json"},
+        "unanswered": {"type": "array", "items": {"type": "string"}}, "complete": {"type": "boolean"}, "approved": {"type": "boolean"}
+      }
+    },
+    {
+      "required": ["command", "changedOptions", "saved"],
+      "properties": {
+        "kind": {"const": "configuration"}, "command": {"const": "diff"},
+        "changedOptions": {"type": "array", "items": {"type": "string"}}, "saved": {"const": false}
+      }
+    },
+    {
+      "required": ["command", "result"],
+      "properties": {
+        "kind": {"const": "configuration"}, "command": {"const": "lookup"},
+        "result": {
+          "type": "object", "additionalProperties": false,
+          "required": ["operation", "httpStatus", "identityMatchedBeforeAndAfter", "firstPageOnly", "hasMore", "hasResults", "readOnly"],
+          "properties": {
+            "operation": {"enum": ["capacities", "workspaces"]}, "httpStatus": {"const": 200},
+            "identityMatchedBeforeAndAfter": {"const": true}, "firstPageOnly": {"const": true},
+            "hasMore": {"type": "boolean"}, "hasResults": {"type": "boolean"}, "readOnly": {"const": true},
+            "hasActiveCapacity": {"type": "boolean"},
+            "choices": {"type": "array", "items": {"type": "object", "additionalProperties": false, "required": ["id", "displayName"],
+              "properties": {
+                "id": {"type": "string"}, "displayName": {"type": "string"}, "sku": {"type": "string"},
+                "region": {"type": "string"}, "state": {"type": "string"}, "type": {"type": "string"}, "capacityId": {"type": ["string", "null"]}
+              }
+            }}
+          }
+        }
+      }
+    },
+    {
+      "required": ["command", "status", "planId", "planHash", "changedOptions", "registered"],
+      "properties": {
+        "kind": {"const": "configuration"}, "command": {"const": "save"}, "status": {"const": "draft"},
+        "planId": {"type": "string"}, "planHash": {"$ref": "#/$defs/hash"},
+        "changedOptions": {"type": "array", "items": {"type": "string"}}, "registered": {"const": false}
+      }
+    },
+    {
+      "required": ["command", "status", "planId", "planHash", "configHash", "grantId", "cloudWritesEnabled"],
+      "properties": {
+        "kind": {"const": "configuration"}, "command": {"const": "apply"}, "status": {"const": "applied"},
+        "planId": {"type": "string"}, "planHash": {"$ref": "#/$defs/hash"},
+        "configHash": {"$ref": "#/$defs/hash"}, "grantId": {"type": "string"}, "cloudWritesEnabled": {"const": false}
+      }
+    },
+    {
+      "required": ["status", "enabled"],
+      "properties": {"kind": {"const": "read-allowance"}, "status": {"const": "current"}, "enabled": {"type": "boolean"}}
+    },
+    {
+      "required": ["status", "mode", "grantId"],
+      "properties": {
+        "kind": {"const": "read-allowance"}, "status": {"const": "requested"},
+        "mode": {"enum": ["allow", "ask"]}, "grantId": {"type": "string"}
+      }
+    }
+  ],
+  "$defs": {"hash": {"type": "string", "pattern": "^[a-f0-9]{64}$"}}
+}

@@ -1,0 +1,56 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://s2f.invalid/schemas/source-output.schema.json",
+  "type": "object",
+  "required": ["contractVersion", "kind", "runId"],
+  "properties": {
+    "contractVersion": {"const": "1.0"},
+    "kind": {"enum": ["source-check", "source-confirmation", "source-discovery"]},
+    "runId": {"type": "string", "pattern": "^[a-z0-9][a-z0-9-]{0,63}$"}
+  },
+  "unevaluatedProperties": false,
+  "oneOf": [
+    {
+      "required": ["checkId", "identity", "confirmed", "exactSql2016Host"],
+      "properties": {
+        "kind": {"const": "source-check"},
+        "checkId": {"type": "string", "format": "uuid"},
+        "confirmed": {"const": false},
+        "exactSql2016Host": {"type": "boolean"},
+        "identity": {
+          "type": "object", "additionalProperties": false,
+          "required": ["engineVersion", "engineMajor", "edition", "productLevel", "sourceUser", "originalUser", "isSysadmin", "transport", "authentication", "encrypted"],
+          "properties": {
+            "engineVersion": {"type": "string", "minLength": 1},
+            "engineMajor": {"type": "integer", "minimum": 13},
+            "edition": {"type": "string", "minLength": 1},
+            "productLevel": {"type": "string", "minLength": 1},
+            "sourceUser": {"type": "string", "minLength": 1},
+            "originalUser": {"type": "string", "minLength": 1},
+            "isSysadmin": {"enum": [0, 1]},
+            "transport": {"type": "string"}, "authentication": {"type": "string"},
+            "encrypted": {"type": "string"}
+          }
+        }
+      }
+    },
+    {
+      "required": ["status", "checkId", "grantId"],
+      "properties": {
+        "kind": {"const": "source-confirmation"}, "status": {"const": "requested"},
+        "checkId": {"type": "string", "format": "uuid"},
+        "grantId": {"type": "string", "format": "uuid"}
+      }
+    },
+    {
+      "required": ["status", "inventoryHash", "databaseCount", "objectCount", "definitionsExtracted"],
+      "properties": {
+        "kind": {"const": "source-discovery"}, "status": {"const": "discovered"},
+        "inventoryHash": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+        "databaseCount": {"type": "integer", "minimum": 1, "maximum": 16},
+        "objectCount": {"type": "integer", "minimum": 0, "maximum": 16000},
+        "definitionsExtracted": {"const": false}
+      }
+    }
+  ]
+}

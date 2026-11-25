@@ -1,0 +1,63 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://s2f.invalid/schemas/command.schema.json",
+  "type": "object",
+  "required": ["contractVersion"],
+  "properties": {"contractVersion": {"const": "1.0"}},
+  "oneOf": [
+    {
+      "additionalProperties": false,
+      "required": ["version", "python", "tools", "liveExecutionEnabled", "sourceAccessEnabled", "identityConfirmation", "enabledFabricOperations"],
+      "properties": {
+        "contractVersion": {}, "version": {"type": "string"}, "python": {"type": "string"},
+        "tools": {"type": "object", "additionalProperties": {"type": "boolean"}},
+        "liveExecutionEnabled": {"const": true}, "sourceAccessEnabled": {"const": true},
+        "enabledFabricOperations": {"const":["create-workspace","create-lakehouse","create-warehouse","conditional-onelake-upload","preview-load-new-bronze-table","bronze-readback"]},
+        "identityConfirmation": {"const": "required-before-live-access"}
+      }
+    },
+    {
+      "additionalProperties": false, "required": ["windows", "source", "fabric", "identityConfirmed"],
+      "properties": {
+        "contractVersion": {}, "windows": {"type": "string"}, "source": {"const": "not-connected"},
+        "fabric": {"const": "not-connected"}, "identityConfirmed": {"const": false}
+      }
+    },
+    {
+      "additionalProperties": false,
+      "required": ["status", "planId", "runId", "planHash", "registered", "executionEnabled"],
+      "properties": {
+        "contractVersion": {}, "status": {"const": "draft"},
+        "planId": {"type": "string"}, "runId": {"type": "string"},
+        "planHash": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+        "registered": {"const": false}, "executionEnabled": {"type":"boolean"}
+      }
+    },
+    {
+      "additionalProperties": false, "required": ["status", "planId", "planHash"],
+      "properties": {
+        "contractVersion": {}, "status": {"const": "expiration-requested"},
+        "planId": {"type": "string"}, "planHash": {"type": "string", "pattern": "^[a-f0-9]{64}$"}
+      }
+    },
+    {
+      "additionalProperties": false, "required": ["plans"],
+      "properties": {"contractVersion": {}, "plans": {"type": "array", "items": {"type": "string"}}}
+    },
+    {
+      "additionalProperties": false, "required": ["items"],
+      "properties": {"contractVersion": {}, "items": {"type": "array", "items": {"$ref": "ledger.schema.json"}}}
+    },
+    {
+      "additionalProperties": false, "required": ["status", "error"],
+      "properties": {"contractVersion": {}, "status": {"const": "blocked"}, "error": {"type": "string", "minLength": 1}}
+    },
+    {"$ref": "plan.schema.json"},
+    {"$ref": "configuration-output.schema.json"},
+    {"$ref": "provisioning-plan.schema.json"},
+    {"$ref": "provisioning-output.schema.json"},
+    {"$ref": "source-output.schema.json"},
+    {"$ref": "movement-plan.schema.json"},
+    {"$ref": "movement-output.schema.json"}
+  ]
+}

@@ -1,0 +1,17 @@
+[build-system]
+requires = ["setuptools==84.2.1"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "sql-to-fabric-migrator"
+version = "0.1.0"
+description = "Preview approval-first SQL Server to Fabric bronze migration with guarded source reads and staged data movement."
+requires-python = ">=3.11"
+dependencies = ["PyYAML==6.0.3", "jsonschema==4.26.0", "pyodbc==5.5.0", "pyarrow==26.0.1"]
+
+[project.scripts]
+s2f = "s2f.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+

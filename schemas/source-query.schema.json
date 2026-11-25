@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://s2f.invalid/schemas/source-query.schema.json",
+  "type": "object", "additionalProperties": false,
+  "required": ["contractVersion", "eventId", "observedAt", "queryId", "database", "sql", "sha256", "status", "durationMs", "rows"],
+  "properties": {
+    "contractVersion": {"const": "1.0"}, "eventId": {"type": "string", "format": "uuid"},
+    "observedAt": {"type": "string", "pattern": "^\\d{4}-\\d\\d-\\d\\dT\\d\\d:\\d\\d:\\d\\d\\.\\d{3}Z$"},
+    "queryId": {"enum": ["identity", "database", "objects", "columns", "table-metadata", "table-data", "target-identity", "target-data"]},
+    "database": {"type": "string"}, "sql": {"type": "string", "minLength": 1},
+    "sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "status": {"enum": ["started", "completed", "failed"]},
+    "durationMs": {"type": ["number", "null"], "minimum": 0},
+    "rows": {"type": ["integer", "null"], "minimum": 0, "maximum": 100000}
+  }
+}
